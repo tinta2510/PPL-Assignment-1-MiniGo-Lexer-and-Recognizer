@@ -26,7 +26,7 @@ options{
 }
 
 // Lexer rules
-NL: '\r'?'\n' -> skip; //skip newlines
+NL: '\n'; // NOT skip newlines
 
 WS : [ \t\r\f]+ -> skip ; // skip spaces, tabs
 
@@ -75,6 +75,7 @@ AND: '&&';
 OR: '||';
 NOT: '!';
 ASSIGN: '=';
+COLON_ASSIGN: ':=';
 PLUS_ASSIGN: '+=';
 MINUS_ASSIGN: '-=';
 STAR_ASSIGN: '*=';
@@ -92,27 +93,29 @@ R_BRACKET: ']';
 COMMA: ',';
 SEMICOLON: ';';
 
-// Literals
-INT_LIT: DECIMAL_INT | BINARY_INT | OCTAL_INT | HEX_INT;
+// INT Literals
+DECIMAL_INT: [1-9]DIGIT* | '0'; 
 fragment DIGIT: [0-9];
-fragment DECIMAL_INT: [1-9]DIGIT* | '0'; 
-fragment BINARY_INT: '0'[Bb][01]+;
-fragment OCTAL_INT: '0'[Oo][0-7]+;
-fragment HEX_INT: '0'[Xx][0-9A-Fa-f]+;
+BINARY_INT: '0'[Bb][01]+ { self.text = str(int(self.text, 2)) };
+OCTAL_INT: '0'[Oo][0-7]+ { self.text = str(int(self.text, 8)) };
+HEX_INT: '0'[Xx][0-9A-Fa-f]+ { self.text = str(int(self.text, 16)) };
 
-FLOAT_LIT: DECIMAL_INT '.' DIGIT* EXPONENT? 
-        | DECIMAL_INT EXPONENT ;
-fragment EXPONENT: [eE][+-]?DIGIT+;
+FLOAT_LIT: DECIMAL_INT '.' DIGIT* EXPONENT?;
+        // | DECIMAL_INT EXPONENT ; //???
+fragment EXPONENT: [eE][+-]?DECIMAL_INT;
 
-STRING_LIT: '"' STRING_CHAR* '"' ;
+STRING_LIT: '"' STRING_CHAR* '"' {self.text = self.text[1:-1];}; //???
 fragment STRING_CHAR: (~[\n"\\] | '\\' [ntr"\\]);
 
 ERROR_CHAR: . ;
 ILLEGAL_ESCAPE: '"' STRING_CHAR* '\\' ~[ntr"\\] { self.text = self.text[1:]; } ;
-UNCLOSE_STRING: '"' STRING_CHAR* (NL | EOF) {
-    self.text = self.text[1:]
-    while self.text[-1] == '\n' or self.text[-1] == '\r':
-        self.text = self.text[:-1]; 
+UNCLOSE_STRING: '"' STRING_CHAR* ('\r'? '\n' | EOF) {
+    if (self.text[-1] == '\n' and self.text[-2] == '\r'):
+        self.text = self.text[1:-2];
+    elif (self.text[-1] == '\n'):
+        self.text = self.text[1:-1];
+    else:
+        self.text = self.text[1:]
 }; 
 
 // Parser rules

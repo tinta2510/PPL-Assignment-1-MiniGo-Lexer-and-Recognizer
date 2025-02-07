@@ -1,3 +1,5 @@
 target/
 **/solutions/
 **/testcases/
+**/antlr/
+**/__pycache__/
