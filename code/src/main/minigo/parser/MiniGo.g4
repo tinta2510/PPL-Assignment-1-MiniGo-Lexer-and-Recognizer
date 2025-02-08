@@ -56,8 +56,6 @@ NIL: 'nil';
 TRUE: 'true';
 FALSE: 'false';
 
-// Identifiers (go after keywords)
-ID: [A-Za-z_][A-Za-z0-9_]*;
 
 // Operators
 PLUS: '+';
@@ -92,6 +90,10 @@ L_BRACKET: '[';
 R_BRACKET: ']';
 COMMA: ',';
 SEMICOLON: ';';
+
+
+// Identifiers (go after keywords)
+ID: [A-Za-z_][A-Za-z0-9_]*;
 
 // INT Literals
 DECIMAL_INT: [1-9]DIGIT* | '0'; 

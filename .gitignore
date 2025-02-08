@@ -1,5 +1,5 @@
 target/
 **/solutions/
 **/testcases/
-**/antlr/
+**/.antlr/
 **/__pycache__/
