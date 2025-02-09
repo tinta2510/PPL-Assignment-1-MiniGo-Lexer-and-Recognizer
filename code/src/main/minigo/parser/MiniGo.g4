@@ -25,7 +25,6 @@ options{
 	language=Python3;
 }
 
-// Lexer rules
 NL: '\n'; // NOT skip newlines
 
 WS : [ \t\r\f]+ -> skip ; // skip spaces, tabs
@@ -128,3 +127,13 @@ decl: funcdecl | vardecl  ;
 vardecl: 'var' ID 'int' ';' ;
 
 funcdecl: 'func' ID '(' ')' '{' '}' ';' ;
+
+literal: basicLit | compositeLit | functionLit;
+
+basicLit: integer | FLOAT_LIT | STRING_LIT | 'true' | 'false' | 'nil' ;
+
+integer: DECIMAL_INT | BINARY_INT | OCTAL_INT | HEX_INT ;
+
+// arrayLit: L_BRACKET expression R_BRACKET ;
+
+// Lexer rules
