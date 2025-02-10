@@ -25,6 +25,7 @@ options{
 	language=Python3;
 }
 
+// Lexer rules
 NL: '\n'; // NOT skip newlines
 
 WS : [ \t\r\f]+ -> skip ; // skip spaces, tabs
@@ -79,6 +80,7 @@ STAR_ASSIGN: '*=';
 SLASH_ASSIGN: '/=';
 MOD_ASSIGN: '%=';
 DOT: '.';
+COLON: ':';
 
 // Separators
 L_PAREN: '(';
@@ -90,9 +92,8 @@ R_BRACKET: ']';
 COMMA: ',';
 SEMICOLON: ';';
 
-
 // Identifiers (go after keywords)
-ID: [A-Za-z_][A-Za-z0-9_]*;
+IDENTIFIER: [A-Za-z_][A-Za-z0-9_]*;
 
 // INT Literals
 DECIMAL_INT: [1-9]DIGIT* | '0'; 
@@ -124,16 +125,72 @@ program  : decl+ EOF ;
 
 decl: funcdecl | vardecl  ;
 
-vardecl: 'var' ID 'int' ';' ;
+vardecl: 'var' IDENTIFIER 'int' ';' ;
 
-funcdecl: 'func' ID '(' ')' '{' '}' ';' ;
+funcdecl: 'func' IDENTIFIER '(' ')' '{' '}' ';' ;
 
-literal: basicLit | compositeLit | functionLit;
+type_: IDENTIFIER | arrayType | structType ;
 
-basicLit: integer | FLOAT_LIT | STRING_LIT | 'true' | 'false' | 'nil' ;
+literal: basicLit | compositeLit ;
 
-integer: DECIMAL_INT | BINARY_INT | OCTAL_INT | HEX_INT ;
+basicLit: integerLit | FLOAT_LIT | STRING_LIT | TRUE | FALSE | NIL ;
 
-// arrayLit: L_BRACKET expression R_BRACKET ;
+integerLit: DECIMAL_INT | BINARY_INT | OCTAL_INT | HEX_INT ;
 
-// Lexer rules
+compositeLit: arrayLit | structLit ;
+
+arrayLit: arrayType arrayValue ;
+
+arrayType: L_BRACKET integerLit R_BRACKET type_ ; //???: or constant
+
+arrayValue: L_BRACE (elementList COMMA?)? R_BRACE ;
+
+structLit: structType structValue ;
+
+structType: IDENTIFIER ;
+
+structValue: L_BRACE (keyedElementList COMMA?)? R_BRACE ; 
+
+elementList: element COMMA elementList | element ;
+
+keyedElementList: keyedElement COMMA keyedElementList | keyedElement ;
+
+keyedElement: (key COLON)? element;
+
+key: expression | arrayValue | structValue ;
+
+element: expression | arrayValue | structValue ;
+
+// expression
+//     : primaryExpr 
+//     | unaryOp = (PLUS | MINUS | NOT) expression
+//     | expression mulOp = (STAR | SLASH | MOD) expression
+//     | expression addOp = (PLUS | MINUS) expression
+//     | expression relOp = (
+//         EQUALS | NOT_EQUALS | LESS_THAN | LESS_THAN_OR_EQUAL 
+//         | GREATER_THAN | GREATER_THAN_OR_EQUAL
+//     ) expression
+//     | expression logOp = (AND | OR) expression;
+ 
+// primaryExpr: operand ;
+
+// operand: literal ;
+
+expression: expression OR logAND |  logAND ;
+
+logAND: logAND AND relExpr | relExpr ;
+
+relExpr: relExpr relOp = ( EQUALS | NOT_EQUALS | LESS_THAN | LESS_THAN_OR_EQUAL 
+    | GREATER_THAN | GREATER_THAN_OR_EQUAL ) addExpr | addExpr ;
+
+addExpr: addExpr addOp = (PLUS | MINUS) mulExpr | mulExpr ;
+
+mulExpr: mulExpr mulOp = (STAR | SLASH | MOD) unaryExpr | unaryExpr ;
+
+unaryExpr: unaryOp = (PLUS | MINUS | NOT) primaryExpr | primaryExpr ;
+
+primaryExpr: operand ;
+
+operand: literal ;
+
+
