@@ -121,7 +121,9 @@ UNCLOSE_STRING: '"' STRING_CHAR* ('\r'? '\n' | EOF) {
 }; 
 
 // Parser rules
-program  : decl+ EOF ;
+program  : declList EOF ;
+
+declList: decl | declList decl ;
 
 decl: funcdecl | vardecl  ;
 
@@ -129,7 +131,7 @@ vardecl: 'var' IDENTIFIER 'int' ';' ;
 
 funcdecl: 'func' IDENTIFIER '(' ')' '{' '}' ';' ;
 
-type_: IDENTIFIER | arrayType | structType ;
+type_: IDENTIFIER | arrayType ;
 
 literal: basicLit | compositeLit ;
 
@@ -141,44 +143,37 @@ compositeLit: arrayLit | structLit ;
 
 arrayLit: arrayType arrayValue ;
 
-arrayType: L_BRACKET integerLit R_BRACKET type_ ; //???: or constant
+arrayType: L_BRACKET integerLit R_BRACKET elementType ; //???: or constant
 
-arrayValue: L_BRACE (elementList COMMA?)? R_BRACE ;
+elementType: type_ ;
+
+arrayValue
+    : L_BRACE elementList COMMA R_BRACE 
+    | L_BRACE elementList R_BRACE
+    | L_BRACE R_BRACE ;
 
 structLit: structType structValue ;
 
 structType: IDENTIFIER ;
 
-structValue: L_BRACE (keyedElementList COMMA?)? R_BRACE ; 
+structValue
+    : L_BRACE keyedElementList COMMA R_BRACE 
+    | L_BRACE keyedElementList R_BRACE
+    | L_BRACE R_BRACE ; 
 
 elementList: element COMMA elementList | element ;
 
 keyedElementList: keyedElement COMMA keyedElementList | keyedElement ;
 
-keyedElement: (key COLON)? element;
+keyedElement: key COLON element | element ;
 
-key: expression | arrayValue | structValue ;
+key: expression | structValue ;
 
-element: expression | arrayValue | structValue ;
+element: expression | structValue ;
 
-// expression
-//     : primaryExpr 
-//     | unaryOp = (PLUS | MINUS | NOT) expression
-//     | expression mulOp = (STAR | SLASH | MOD) expression
-//     | expression addOp = (PLUS | MINUS) expression
-//     | expression relOp = (
-//         EQUALS | NOT_EQUALS | LESS_THAN | LESS_THAN_OR_EQUAL 
-//         | GREATER_THAN | GREATER_THAN_OR_EQUAL
-//     ) expression
-//     | expression logOp = (AND | OR) expression;
- 
-// primaryExpr: operand ;
+expression: expression OR logAndExpr |  logAndExpr ;
 
-// operand: literal ;
-
-expression: expression OR logAND |  logAND ;
-
-logAND: logAND AND relExpr | relExpr ;
+logAndExpr: logAndExpr AND relExpr | relExpr ;
 
 relExpr: relExpr relOp = ( EQUALS | NOT_EQUALS | LESS_THAN | LESS_THAN_OR_EQUAL 
     | GREATER_THAN | GREATER_THAN_OR_EQUAL ) addExpr | addExpr ;
@@ -189,8 +184,13 @@ mulExpr: mulExpr mulOp = (STAR | SLASH | MOD) unaryExpr | unaryExpr ;
 
 unaryExpr: unaryOp = (PLUS | MINUS | NOT) primaryExpr | primaryExpr ;
 
-primaryExpr: operand ;
+primaryExpr
+    : primaryExpr DOT IDENTIFIER
+    | primaryExpr index
+    | operand; //??? function call
 
-operand: literal ;
+index: L_BRACKET expression R_BRACKET ;
+
+operand: literal | IDENTIFIER | L_PAREN expression R_PAREN ; //
 
 
