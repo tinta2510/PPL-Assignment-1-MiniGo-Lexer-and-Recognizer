@@ -6,8 +6,7 @@ class LexerSuite(unittest.TestCase):
     # Test CHARACTER SET
     def test_char_newline(self):
         self.assertTrue(TestLexer.checkLexeme(""" // /* 
-                                       */""", "\n,*,/,<EOF>", 101))
-    
+                                       */""", "*,/,<EOF>", 101))
     
     # Test COMMENT
     def test_comment(self):
@@ -116,7 +115,7 @@ class LexerSuite(unittest.TestCase):
         
     def test_int_lit_9(self):
         """INT_LIT"""
-        self.assertTrue(TestLexer.test("-12", "-,12,<EOF>", inspect.stack()[0].function))
+        self.assertTrue(TestLexer.checkLexeme("-12", "-,12,<EOF>", 1))
         
     ## Test FLOAT LITERALS
     def test_float_lit(self):

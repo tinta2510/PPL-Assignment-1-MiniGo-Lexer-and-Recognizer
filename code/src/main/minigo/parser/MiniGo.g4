@@ -19,8 +19,8 @@ def emit(self):
         raise ErrorToken(result.text); 
     else:
         result = super().emit();
-        self.lastToken = result;
-        return super().emit();
+        self.preceding_token = result;
+        return result;
 }
 
 options{
@@ -29,16 +29,16 @@ options{
 
 // Lexer rules
 NL: ('\r'?'\n') {
-    acceptedTokens = [
+    accepted_tokens_before_newline_char = [
         self.IDENTIFIER, self.DECIMAL_INT, self.BINARY_INT, self.OCTAL_INT, 
         self.HEX_INT, self.FLOAT_LIT, self.TRUE, self.FALSE, self.STRING_LIT, 
         self.INT, self.FLOAT, self.BOOLEAN, self.STRING, self.RETURN, 
         self.CONTINUE, self.BREAK, self.R_PAREN, self.R_BRACKET, self.R_BRACE
     ]
-    if self.lastToken and self.lastToken.type in acceptedTokens:
+    if hasattr(self, 'preceding_token') and self.preceding_token and self.preceding_token.type in accepted_tokens_before_newline_char:
         self.type = self.SEMICOLON;
     else:
-        skip();
+        self.skip();
 }; 
 
 WS : [ \t\r\f]+ -> skip ; // skip spaces, tabs
