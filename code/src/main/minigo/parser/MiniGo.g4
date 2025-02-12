@@ -30,9 +30,8 @@ options{
 // Lexer rules
 NL: ('\r'?'\n') {
     accepted_tokens_before_newline_char = [
-        self.IDENTIFIER, self.DECIMAL_INT, self.BINARY_INT, self.OCTAL_INT, 
-        self.HEX_INT, self.FLOAT_LIT, self.TRUE, self.FALSE, self.STRING_LIT, 
-        self.INT, self.FLOAT, self.BOOLEAN, self.STRING, self.RETURN, 
+        self.IDENTIFIER, self.INT_LIT, self.FLOAT_LIT, self.TRUE, self.FALSE, 
+        self.STRING_LIT, self.INT, self.FLOAT, self.BOOLEAN, self.STRING, self.RETURN, 
         self.CONTINUE, self.BREAK, self.R_PAREN, self.R_BRACKET, self.R_BRACE
     ]
     if hasattr(self, 'preceding_token') and self.preceding_token and self.preceding_token.type in accepted_tokens_before_newline_char:
@@ -315,7 +314,7 @@ arrayLit: arrayType arrayValue ;
 
 arrayType: L_BRACKET arrayTypeIndex R_BRACKET elementType ; //???: or constant
 
-arrayTypeIndex:  | IDENTIFIER ;
+arrayTypeIndex: INT_LIT | IDENTIFIER ;
 
 elementType: type_ ;
 
