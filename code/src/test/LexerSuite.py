@@ -152,7 +152,7 @@ class LexerSuite(unittest.TestCase):
         self.assertTrue(TestLexer.checkLexeme("^","ErrorToken ^", 135))
         
     def test_error_token_4(self):
-        self.assertTrue(TestLexer.checkLexeme("0b1234", "ErrorToken 2", 136))
+        self.assertTrue(TestLexer.checkLexeme("0b1234", "1,234,<EOF>", 136))
         
     ## Test UNCLOSED STRING
     def test_unclosed_string(self):
@@ -173,7 +173,7 @@ class LexerSuite(unittest.TestCase):
     def test_illegal_escape_2(self):
         self.assertTrue(TestLexer.checkLexeme(""" 
             const a = 2;
-""","\n,const,a,=,2,;,\n,<EOF>", 141))
+""","const,a,=,2,;,<EOF>", 141))
         
     def test_illegal_escape_3(self):
         """ILLEGAL_ESCAPE"""

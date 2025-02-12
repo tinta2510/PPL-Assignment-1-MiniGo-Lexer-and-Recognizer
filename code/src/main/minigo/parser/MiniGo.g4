@@ -158,15 +158,17 @@ SEMICOLON: ';';
 IDENTIFIER: [A-Za-z_][A-Za-z0-9_]*;
 
 // INT Literals
-DECIMAL_INT: [1-9]DIGIT* | '0'; 
-
+INT_LIT //???
+    : DECIMAL_INT 
+    | BINARY_INT { self.text = str(int(self.text, 2)) }
+    | OCTAL_INT { self.text = str(int(self.text, 8)) }
+    | HEX_INT { self.text = str(int(self.text, 16)) }
+    ;
+fragment DECIMAL_INT: [1-9]DIGIT* | '0'; 
 fragment DIGIT: [0-9];
-
-BINARY_INT: '0'[Bb][01]+ { self.text = str(int(self.text, 2)) };
-
-OCTAL_INT: '0'[Oo][0-7]+ { self.text = str(int(self.text, 8)) };
-
-HEX_INT: '0'[Xx][0-9A-Fa-f]+ { self.text = str(int(self.text, 16)) };
+fragment BINARY_INT: '0'[Bb][01]+ ;
+fragment OCTAL_INT: '0'[Oo][0-7]+ ;
+fragment HEX_INT: '0'[Xx][0-9A-Fa-f]+ ;
 
 FLOAT_LIT: DECIMAL_INT '.' DIGIT* EXPONENT?;
 
@@ -207,7 +209,7 @@ varDeclWithInit
     | VAR IDENTIFIER initilization EOS
     ;
 
-type_: IDENTIFIER | arrayType ;
+type_: IDENTIFIER | STRING | INT | FLOAT | BOOLEAN | arrayType ;
 
 initilization: ASSIGN expression ;
 
@@ -262,7 +264,7 @@ stmt
 
 assignStmt: lhs assignOp rhs EOS ;
 
-lhs: IDENTIFIER | lhs fieldAccess | lhs index ; //???
+lhs: IDENTIFIER | lhs fieldAccess | lhs arrayAccess ; //???
 
 assignOp: COLON_ASSIGN | PLUS_ASSIGN | MINUS_ASSIGN | STAR_ASSIGN | SLASH_ASSIGN | MOD_ASSIGN ;
 
@@ -305,15 +307,15 @@ returnStmt: RETURN expression EOS | RETURN EOS ;
 // Expression
 literal: basicLit | compositeLit ;
 
-basicLit: integerLit | FLOAT_LIT | STRING_LIT | TRUE | FALSE | NIL ;
-
-integerLit: DECIMAL_INT | BINARY_INT | OCTAL_INT | HEX_INT ;
+basicLit: INT_LIT | FLOAT_LIT | STRING_LIT | TRUE | FALSE | NIL ;
 
 compositeLit: arrayLit | structLit ;
 
 arrayLit: arrayType arrayValue ;
 
-arrayType: L_BRACKET integerLit R_BRACKET elementType ; //???: or constant
+arrayType: L_BRACKET arrayTypeIndex R_BRACKET elementType ; //???: or constant
+
+arrayTypeIndex:  | IDENTIFIER ;
 
 elementType: type_ ;
 
@@ -323,7 +325,7 @@ arrayValue
 
 structLit: structType structValue ;
 
-structType: IDENTIFIER ;
+structType: INT_LIT | IDENTIFIER ;
 
 structValue
     : L_BRACE keyedElementList R_BRACE
@@ -355,13 +357,13 @@ unaryExpr: unaryOp = (PLUS | MINUS | NOT) primaryExpr | primaryExpr ;
 primaryExpr
     : operand
     | primaryExpr fieldAccess   // field access
-    | primaryExpr index         // array access
+    | primaryExpr arrayAccess         // array access
     | primaryExpr arguments     // function/method call
     ; 
 
 fieldAccess: DOT IDENTIFIER ;
 
-index: L_BRACKET expression R_BRACKET ;
+arrayAccess: L_BRACKET expression R_BRACKET ;
 
 arguments: L_PAREN argumentList R_PAREN ;
 
