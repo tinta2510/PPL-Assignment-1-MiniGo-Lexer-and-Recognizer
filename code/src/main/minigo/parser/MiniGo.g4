@@ -18,6 +18,8 @@ def emit(self):
         result = super().emit();
         raise ErrorToken(result.text); 
     else:
+        result = super().emit();
+        self.lastToken = result;
         return super().emit();
 }
 
@@ -26,7 +28,18 @@ options{
 }
 
 // Lexer rules
-NL: '\r'?'\n'; // NOT skip newlines
+NL: ('\r'?'\n') {
+    acceptedTokens = [
+        self.IDENTIFIER, self.DECIMAL_INT, self.BINARY_INT, self.OCTAL_INT, 
+        self.HEX_INT, self.FLOAT_LIT, self.TRUE, self.FALSE, self.STRING_LIT, 
+        self.INT, self.FLOAT, self.BOOLEAN, self.STRING, self.RETURN, 
+        self.CONTINUE, self.BREAK, self.R_PAREN, self.R_BRACKET, self.R_BRACE
+    ]
+    if self.lastToken and self.lastToken.type in acceptedTokens:
+        self.type = self.SEMICOLON;
+    else:
+        skip();
+}; 
 
 WS : [ \t\r\f]+ -> skip ; // skip spaces, tabs
 
@@ -34,7 +47,7 @@ LINE_COMMENT: '//' ~[\r\n]* -> skip;
 
 MULTI_LINE_COMMENT: '/*' ( MULTI_LINE_COMMENT | .)*? '*/' -> skip;
 
-EOS: SEMICOLON | NL | EOF ;
+EOS: SEMICOLON ;
 
 // Keywords
 IF: 'if';
@@ -285,7 +298,7 @@ breakStmt: BREAK EOS ;
 
 continueStmt: CONTINUE EOS ;
 
-callStmt: expression EOS ; //???
+callStmt: primaryExpr arguments EOS ; //???
 
 returnStmt: RETURN expression EOS | RETURN EOS ;
 
@@ -341,9 +354,9 @@ unaryExpr: unaryOp = (PLUS | MINUS | NOT) primaryExpr | primaryExpr ;
 
 primaryExpr
     : operand
-    | primaryExpr fieldAccess
-    | primaryExpr index
-    | primaryExpr arguments
+    | primaryExpr fieldAccess   // field access
+    | primaryExpr index         // array access
+    | primaryExpr arguments     // function/method call
     ; 
 
 fieldAccess: DOT IDENTIFIER ;
@@ -357,5 +370,3 @@ argumentList: nonNullArgumentList | ;
 nonNullArgumentList: expression COMMA nonNullArgumentList | expression ;
 
 operand: literal | IDENTIFIER | L_PAREN expression R_PAREN ; 
-
-
