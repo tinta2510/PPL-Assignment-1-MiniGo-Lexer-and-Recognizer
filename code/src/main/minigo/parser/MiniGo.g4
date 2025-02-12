@@ -343,19 +343,19 @@ primaryExpr
     : operand
     | primaryExpr fieldAccess
     | primaryExpr index
+    | primaryExpr arguments
     ; 
 
 fieldAccess: DOT IDENTIFIER ;
 
 index: L_BRACKET expression R_BRACKET ;
 
+arguments: L_PAREN argumentList R_PAREN ;
+
 argumentList: nonNullArgumentList | ;
 
 nonNullArgumentList: expression COMMA nonNullArgumentList | expression ;
 
-operand: literal | IDENTIFIER | L_PAREN expression R_PAREN | functionCall ;
+operand: literal | IDENTIFIER | L_PAREN expression R_PAREN ; 
 
-functionCall: IDENTIFIER arguments ;
-
-arguments: L_PAREN argumentList R_PAREN ;
 
