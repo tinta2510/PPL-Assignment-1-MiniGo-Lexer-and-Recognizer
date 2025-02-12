@@ -26,7 +26,7 @@ options{
 }
 
 // Lexer rules
-NL: '\n'; // NOT skip newlines
+NL: '\r'?'\n'; // NOT skip newlines
 
 WS : [ \t\r\f]+ -> skip ; // skip spaces, tabs
 
@@ -34,62 +34,111 @@ LINE_COMMENT: '//' ~[\r\n]* -> skip;
 
 MULTI_LINE_COMMENT: '/*' ( MULTI_LINE_COMMENT | .)*? '*/' -> skip;
 
+EOS: SEMICOLON | NL | EOF ;
+
 // Keywords
 IF: 'if';
-ELSE: 'else';
-FOR: 'for';
-RETURN: 'return';
-FUNC: 'func';
-TYPE: 'type';
-STRUCT: 'struct';
-INTERFACE: 'interface';
-STRING: 'string';
-INT: 'int';
-FLOAT: 'float';
-BOOLEAN: 'boolean';
-CONST: 'const';
-VAR: 'var';
-CONTINUE: 'continue';
-BREAK: 'break';
-RANGE: 'range';
-NIL: 'nil';
-TRUE: 'true';
-FALSE: 'false';
 
+ELSE: 'else';
+
+FOR: 'for';
+
+RETURN: 'return';
+
+FUNC: 'func';
+
+TYPE: 'type';
+
+STRUCT: 'struct';
+
+INTERFACE: 'interface';
+
+STRING: 'string';
+
+INT: 'int';
+
+FLOAT: 'float';
+
+BOOLEAN: 'boolean';
+
+CONST: 'const';
+
+VAR: 'var';
+
+CONTINUE: 'continue';
+
+BREAK: 'break';
+
+RANGE: 'range';
+
+NIL: 'nil';
+
+TRUE: 'true';
+
+FALSE: 'false';
 
 // Operators
 PLUS: '+';
+
 MINUS: '-';
+
 STAR: '*';
+
 SLASH: '/';
+
 MOD: '%';
+
 EQUALS: '==';
+
 NOT_EQUALS: '!=';
+
 LESS_THAN: '<';
+
 LESS_THAN_OR_EQUAL: '<=';
+
 GREATER_THAN: '>';
+
 GREATER_THAN_OR_EQUAL: '>=';
+
 AND: '&&';
+
 OR: '||';
+
 NOT: '!';
+
 ASSIGN: '=';
+
 COLON_ASSIGN: ':=';
+
 PLUS_ASSIGN: '+=';
+
 MINUS_ASSIGN: '-=';
+
 STAR_ASSIGN: '*=';
+
 SLASH_ASSIGN: '/=';
+
 MOD_ASSIGN: '%=';
+
 DOT: '.';
+
 COLON: ':';
 
 // Separators
 L_PAREN: '(';
+
 R_PAREN: ')';
+
 L_BRACE: '{';
+
 R_BRACE: '}';
+
 L_BRACKET: '[';
+
 R_BRACKET: ']';
+
 COMMA: ',';
+
 SEMICOLON: ';';
 
 // Identifiers (go after keywords)
@@ -97,20 +146,27 @@ IDENTIFIER: [A-Za-z_][A-Za-z0-9_]*;
 
 // INT Literals
 DECIMAL_INT: [1-9]DIGIT* | '0'; 
+
 fragment DIGIT: [0-9];
+
 BINARY_INT: '0'[Bb][01]+ { self.text = str(int(self.text, 2)) };
+
 OCTAL_INT: '0'[Oo][0-7]+ { self.text = str(int(self.text, 8)) };
+
 HEX_INT: '0'[Xx][0-9A-Fa-f]+ { self.text = str(int(self.text, 16)) };
 
 FLOAT_LIT: DECIMAL_INT '.' DIGIT* EXPONENT?;
-        // | DECIMAL_INT EXPONENT ; //???
+
 fragment EXPONENT: [eE][+-]?DECIMAL_INT;
 
 STRING_LIT: '"' STRING_CHAR* '"' {self.text = self.text[1:-1];}; //???
+
 fragment STRING_CHAR: (~[\n"\\] | '\\' [ntr"\\]);
 
 ERROR_CHAR: . ;
+
 ILLEGAL_ESCAPE: '"' STRING_CHAR* '\\' ~[ntr"\\] { self.text = self.text[1:]; } ;
+
 UNCLOSE_STRING: '"' STRING_CHAR* ('\r'? '\n' | EOF) {
     if (self.text[-1] == '\n' and self.text[-2] == '\r'):
         self.text = self.text[1:-2];
@@ -123,16 +179,117 @@ UNCLOSE_STRING: '"' STRING_CHAR* ('\r'? '\n' | EOF) {
 // Parser rules
 program  : declList EOF ;
 
+// Declaration
 declList: decl | declList decl ;
 
-decl: funcdecl | vardecl  ;
+decl: varDecl | constDecl | funcDecl | methodDefine | structDecl | interfaceDecl ;
 
-vardecl: 'var' IDENTIFIER 'int' ';' ;
+varDecl
+    : varDeclWithInit //???: Identifier list
+    | VAR IDENTIFIER type_ EOS
+    ;
 
-funcdecl: 'func' IDENTIFIER '(' ')' '{' '}' ';' ;
+varDeclWithInit
+    : VAR IDENTIFIER type_ initilization EOS 
+    | VAR IDENTIFIER initilization EOS
+    ;
 
 type_: IDENTIFIER | arrayType ;
 
+initilization: ASSIGN expression ;
+
+constDecl: CONST IDENTIFIER initilization EOS ;
+
+funcDecl: FUNC IDENTIFIER signature block ;
+
+signature
+    : parameterList returnType
+    | parameterList ;
+
+parameterList: L_PAREN parameterDeclList R_PAREN ;
+
+returnType: type_;
+
+parameterDeclList: nonNullParameterDeclList | ;
+
+nonNullParameterDeclList: parameterDecl COMMA nonNullParameterDeclList | typedParameterDecl ;
+
+parameterDecl: IDENTIFIER type_ | IDENTIFIER ;
+
+typedParameterDecl: IDENTIFIER type_ ;
+
+block: L_BRACE stmtList R_BRACE ;
+
+stmtList: stmt | stmtList stmt ;
+
+methodDefine: FUNC receiver IDENTIFIER signature block ;
+
+receiver: L_PAREN IDENTIFIER type_ R_PAREN ;
+
+structDecl: TYPE IDENTIFIER STRUCT structBody ;
+
+structBody: L_BRACE fieldDeclList R_BRACE ;
+
+fieldDeclList: fieldDecl | fieldDeclList fieldDecl ;
+
+fieldDecl: IDENTIFIER type_ EOS ;
+
+interfaceDecl: TYPE IDENTIFIER INTERFACE interfaceBody ;
+
+interfaceBody: L_BRACE methodDeclList R_BRACE ;
+
+methodDeclList: methodDecl | methodDeclList methodDecl ;
+
+methodDecl: IDENTIFIER signature EOS;
+
+// Statement
+stmt
+    : varDecl | constDecl | assignStmt | ifStmt | forStmt | breakStmt 
+    | continueStmt | callStmt | returnStmt ;
+
+assignStmt: lhs assignOp rhs EOS ;
+
+lhs: IDENTIFIER | lhs fieldAccess | lhs index ; //???
+
+assignOp: COLON_ASSIGN | PLUS_ASSIGN | MINUS_ASSIGN | STAR_ASSIGN | SLASH_ASSIGN | MOD_ASSIGN ;
+
+rhs: expression ;
+
+ifStmt: IF ifCondition block elseStmt ;
+
+ifCondition: L_PAREN expression R_PAREN ;
+
+elseStmt: ELSE block | ELSE ifStmt | ;
+
+forStmt: FOR forClause block ;
+
+forClause: forCondition | forLoop | forRange ;
+
+forCondition: expression ;
+
+forLoop: forLoopInit SEMICOLON forCondition SEMICOLON forLoopUpdate ;
+
+forLoopInit: assignStmt | varDeclWithInit ;
+
+forLoopUpdate: assignStmt ;
+
+forRange: forIndex COMMA forValue COLON_ASSIGN rangeExpr ;
+
+forIndex: IDENTIFIER ;
+
+forValue: IDENTIFIER ;
+
+rangeExpr: RANGE IDENTIFIER ;
+
+breakStmt: BREAK EOS ;
+
+continueStmt: CONTINUE EOS ;
+
+callStmt: expression EOS ; //???
+
+returnStmt: RETURN expression EOS | RETURN EOS ;
+
+// Expression
 literal: basicLit | compositeLit ;
 
 basicLit: integerLit | FLOAT_LIT | STRING_LIT | TRUE | FALSE | NIL ;
@@ -148,8 +305,7 @@ arrayType: L_BRACKET integerLit R_BRACKET elementType ; //???: or constant
 elementType: type_ ;
 
 arrayValue
-    : L_BRACE elementList COMMA R_BRACE 
-    | L_BRACE elementList R_BRACE
+    : L_BRACE elementList R_BRACE
     | L_BRACE R_BRACE ;
 
 structLit: structType structValue ;
@@ -157,8 +313,7 @@ structLit: structType structValue ;
 structType: IDENTIFIER ;
 
 structValue
-    : L_BRACE keyedElementList COMMA R_BRACE 
-    | L_BRACE keyedElementList R_BRACE
+    : L_BRACE keyedElementList R_BRACE
     | L_BRACE R_BRACE ; 
 
 elementList: element COMMA elementList | element ;
@@ -185,12 +340,22 @@ mulExpr: mulExpr mulOp = (STAR | SLASH | MOD) unaryExpr | unaryExpr ;
 unaryExpr: unaryOp = (PLUS | MINUS | NOT) primaryExpr | primaryExpr ;
 
 primaryExpr
-    : primaryExpr DOT IDENTIFIER
+    : operand
+    | primaryExpr fieldAccess
     | primaryExpr index
-    | operand; //??? function call
+    ; 
+
+fieldAccess: DOT IDENTIFIER ;
 
 index: L_BRACKET expression R_BRACKET ;
 
-operand: literal | IDENTIFIER | L_PAREN expression R_PAREN ; //
+argumentList: nonNullArgumentList | ;
 
+nonNullArgumentList: expression COMMA nonNullArgumentList | expression ;
+
+operand: literal | IDENTIFIER | L_PAREN expression R_PAREN | functionCall ;
+
+functionCall: IDENTIFIER arguments ;
+
+arguments: L_PAREN argumentList R_PAREN ;
 
