@@ -30,8 +30,9 @@ options{
 // Lexer rules
 NL: ('\r'?'\n') {
     accepted_tokens_before_newline_char = [
-        self.IDENTIFIER, self.INT_LIT, self.FLOAT_LIT, self.TRUE, self.FALSE, 
-        self.STRING_LIT, self.INT, self.FLOAT, self.BOOLEAN, self.STRING, self.RETURN, 
+        self.IDENTIFIER, self.DECIMAL_INT, self.BINARY_INT, self.OCTAL_INT, 
+        self.HEX_INT, self.FLOAT_LIT, self.TRUE, self.FALSE, self.STRING_LIT, 
+        self.INT, self.FLOAT, self.BOOLEAN, self.STRING, self.RETURN, 
         self.CONTINUE, self.BREAK, self.R_PAREN, self.R_BRACKET, self.R_BRACE
     ]
     if hasattr(self, 'preceding_token') and self.preceding_token and self.preceding_token.type in accepted_tokens_before_newline_char:
@@ -46,7 +47,7 @@ LINE_COMMENT: '//' ~[\r\n]* -> skip;
 
 MULTI_LINE_COMMENT: '/*' ( MULTI_LINE_COMMENT | .)*? '*/' -> skip;
 
-EOS: SEMICOLON ;
+EOS: SEMICOLON | EOF;
 
 // Keywords
 IF: 'if';
@@ -157,17 +158,11 @@ SEMICOLON: ';';
 IDENTIFIER: [A-Za-z_][A-Za-z0-9_]*;
 
 // INT Literals
-INT_LIT //???
-    : DECIMAL_INT 
-    | BINARY_INT { self.text = str(int(self.text, 2)) }
-    | OCTAL_INT { self.text = str(int(self.text, 8)) }
-    | HEX_INT { self.text = str(int(self.text, 16)) }
-    ;
-fragment DECIMAL_INT: [1-9]DIGIT* | '0'; 
+DECIMAL_INT: [1-9]DIGIT* | '0'; 
 fragment DIGIT: [0-9];
-fragment BINARY_INT: '0'[Bb][01]+ ;
-fragment OCTAL_INT: '0'[Oo][0-7]+ ;
-fragment HEX_INT: '0'[Xx][0-9A-Fa-f]+ ;
+BINARY_INT: '0'[Bb][01]+ { self.text = str(int(self.text, 2)) };
+OCTAL_INT: '0'[Oo][0-7]+ { self.text = str(int(self.text, 8)) };
+HEX_INT: '0'[Xx][0-9A-Fa-f]+ { self.text = str(int(self.text, 16)) };
 
 FLOAT_LIT: DECIMAL_INT '.' DIGIT* EXPONENT?;
 
@@ -232,7 +227,7 @@ parameterDecl: IDENTIFIER type_ | IDENTIFIER ;
 
 typedParameterDecl: IDENTIFIER type_ ;
 
-block: L_BRACE stmtList R_BRACE ;
+block: L_BRACE stmtList R_BRACE EOS ;
 
 stmtList: stmt | stmtList stmt ;
 
@@ -306,7 +301,9 @@ returnStmt: RETURN expression EOS | RETURN EOS ;
 // Expression
 literal: basicLit | compositeLit ;
 
-basicLit: INT_LIT | FLOAT_LIT | STRING_LIT | TRUE | FALSE | NIL ;
+basicLit: integerLit | FLOAT_LIT | STRING_LIT | TRUE | FALSE | NIL ;
+
+integerLit: DECIMAL_INT | BINARY_INT | OCTAL_INT | HEX_INT ;
 
 compositeLit: arrayLit | structLit ;
 
@@ -314,7 +311,7 @@ arrayLit: arrayType arrayValue ;
 
 arrayType: L_BRACKET arrayTypeIndex R_BRACKET elementType ; //???: or constant
 
-arrayTypeIndex: INT_LIT | IDENTIFIER ;
+arrayTypeIndex: integerLit | IDENTIFIER ;
 
 elementType: type_ ;
 
@@ -324,7 +321,7 @@ arrayValue
 
 structLit: structType structValue ;
 
-structType: INT_LIT | IDENTIFIER ;
+structType: integerLit | IDENTIFIER ;
 
 structValue
     : L_BRACE keyedElementList R_BRACE
