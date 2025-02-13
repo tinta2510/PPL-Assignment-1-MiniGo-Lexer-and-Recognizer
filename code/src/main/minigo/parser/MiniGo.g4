@@ -36,7 +36,7 @@ NL: ('\r'?'\n') {
         self.CONTINUE, self.BREAK, self.R_PAREN, self.R_BRACKET, self.R_BRACE
     ]
     if hasattr(self, 'preceding_token') and self.preceding_token and self.preceding_token.type in accepted_tokens_before_newline_char:
-        self.type = self.SEMICOLON;
+        self.text = ';';
     else:
         self.skip();
 }; 
@@ -191,23 +191,25 @@ program  : declList EOF ;
 // Declaration
 declList: decl | declList decl ;
 
-decl: varDecl | constDecl | funcDecl | methodDefine | structDecl | interfaceDecl ;
+decl: declBody EOS ;
+
+declBody: varDecl | constDecl | funcDecl | methodDefine | structDecl | interfaceDecl ;
 
 varDecl
     : varDeclWithInit //???: Identifier list
-    | VAR IDENTIFIER type_ EOS
+    | VAR IDENTIFIER type_
     ;
 
 varDeclWithInit
-    : VAR IDENTIFIER type_ initilization EOS 
-    | VAR IDENTIFIER initilization EOS
+    : VAR IDENTIFIER type_ initilization 
+    | VAR IDENTIFIER initilization
     ;
 
 type_: IDENTIFIER | STRING | INT | FLOAT | BOOLEAN | arrayType ;
 
 initilization: ASSIGN expression ;
 
-constDecl: CONST IDENTIFIER initilization EOS ;
+constDecl: CONST IDENTIFIER initilization ;
 
 funcDecl: FUNC IDENTIFIER signature block ;
 
@@ -227,7 +229,7 @@ parameterDecl: IDENTIFIER type_ | IDENTIFIER ;
 
 typedParameterDecl: IDENTIFIER type_ ;
 
-block: L_BRACE stmtList R_BRACE EOS ;
+block: L_BRACE stmtList R_BRACE ;
 
 stmtList: stmt | stmtList stmt ;
 
@@ -243,7 +245,7 @@ fieldDeclList: fieldDecl | fieldDeclList fieldDecl ;
 
 fieldDecl: IDENTIFIER type_ EOS ;
 
-interfaceDecl: TYPE IDENTIFIER INTERFACE interfaceBody ;
+interfaceDecl: TYPE IDENTIFIER INTERFACE interfaceBody;
 
 interfaceBody: L_BRACE methodDeclList R_BRACE ;
 
@@ -252,11 +254,13 @@ methodDeclList: methodDecl | methodDeclList methodDecl ;
 methodDecl: IDENTIFIER signature EOS;
 
 // Statement
-stmt
+stmt: stmtBody EOS ;
+
+stmtBody
     : varDecl | constDecl | assignStmt | ifStmt | forStmt | breakStmt 
     | continueStmt | callStmt | returnStmt ;
 
-assignStmt: lhs assignOp rhs EOS ;
+assignStmt: lhs assignOp rhs ;
 
 lhs: IDENTIFIER | lhs fieldAccess | lhs arrayAccess ; //???
 
@@ -290,13 +294,13 @@ forValue: IDENTIFIER ;
 
 rangeExpr: RANGE IDENTIFIER ;
 
-breakStmt: BREAK EOS ;
+breakStmt: BREAK ;
 
-continueStmt: CONTINUE EOS ;
+continueStmt: CONTINUE ;
 
-callStmt: primaryExpr arguments EOS ; //???
+callStmt: primaryExpr arguments ; //???
 
-returnStmt: RETURN expression EOS | RETURN EOS ;
+returnStmt: RETURN expression | RETURN ;
 
 // Expression
 literal: basicLit | compositeLit ;

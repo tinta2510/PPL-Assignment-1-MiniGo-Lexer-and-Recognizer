@@ -3,10 +3,17 @@ from TestUtils import TestLexer
 import inspect
 
 class LexerSuite(unittest.TestCase): 
+    def test_self(self):
+        self.assertTrue(TestLexer.checkLexeme("const a = [1]int{1+1}","<EOF>", 0))
     # Test CHARACTER SET
     def test_char_newline(self):
         self.assertTrue(TestLexer.checkLexeme(""" // /* 
                                        */""", "*,/,<EOF>", 101))
+        
+    def test_new_line_convert(self):
+        self.assertTrue(TestLexer.checkLexeme(
+"""abc
+""","abc,;,<EOF>", 3))
     
     # Test COMMENT
     def test_comment(self):
