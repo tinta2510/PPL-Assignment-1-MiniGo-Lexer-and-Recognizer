@@ -285,7 +285,7 @@ forLoop: forLoopInit SEMICOLON forCondition SEMICOLON forLoopUpdate ;
 
 forLoopInit: assignStmt | varDeclWithInit ;
 
-forLoopUpdate: assignStmt ;
+forLoopUpdate: IDENTIFIER assignOp expression ;
 
 forRange: forIndex COMMA forValue COLON_ASSIGN rangeExpr ;
 
