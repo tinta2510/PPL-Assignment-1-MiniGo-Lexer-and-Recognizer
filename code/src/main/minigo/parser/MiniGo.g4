@@ -160,29 +160,29 @@ IDENTIFIER: [A-Za-z_][A-Za-z0-9_]*;
 // INT Literals
 DECIMAL_INT: [1-9]DIGIT* | '0'; 
 fragment DIGIT: [0-9];
-BINARY_INT: '0'[Bb][01]+ { self.text = str(int(self.text, 2)) };
-OCTAL_INT: '0'[Oo][0-7]+ { self.text = str(int(self.text, 8)) };
-HEX_INT: '0'[Xx][0-9A-Fa-f]+ { self.text = str(int(self.text, 16)) };
+BINARY_INT: '0'[Bb][01]+ ; //???: Convert to decimal
+OCTAL_INT: '0'[Oo][0-7]+ ;
+HEX_INT: '0'[Xx][0-9A-Fa-f]+ ;
 
-FLOAT_LIT: DECIMAL_INT '.' DIGIT* EXPONENT?;
+FLOAT_LIT: DIGIT+ '.' DIGIT* EXPONENT?; //???: leading zero
 
-fragment EXPONENT: [eE][+-]?DECIMAL_INT;
+fragment EXPONENT: [eE][+-]? DIGIT+;
 
-STRING_LIT: '"' STRING_CHAR* '"' {self.text = self.text[1:-1];}; //???
+STRING_LIT: '"' STRING_CHAR* '"' { self.text = self.text[1:-1]; }; //???: remove quotes
 
 fragment STRING_CHAR: (~[\n"\\] | '\\' [ntr"\\]);
 
 ERROR_CHAR: . ;
 
-ILLEGAL_ESCAPE: '"' STRING_CHAR* '\\' ~[ntr"\\] { self.text = self.text[1:]; } ;
+ILLEGAL_ESCAPE: '"' STRING_CHAR* '\\' ~[ntr"\\] ;
 
 UNCLOSE_STRING: '"' STRING_CHAR* ('\r'? '\n' | EOF) {
     if (self.text[-1] == '\n' and self.text[-2] == '\r'):
-        self.text = self.text[1:-2];
+        self.text = self.text[:-2];
     elif (self.text[-1] == '\n'):
-        self.text = self.text[1:-1];
+        self.text = self.text[:-1];
     else:
-        self.text = self.text[1:]
+        self.text = self.text[:]
 }; 
 
 // Parser rules
@@ -196,7 +196,7 @@ decl: declBody EOS ;
 declBody: varDecl | constDecl | funcDecl | methodDefine | structDecl | interfaceDecl ;
 
 varDecl
-    : varDeclWithInit //???: Identifier list
+    : varDeclWithInit
     | VAR IDENTIFIER type_
     ;
 
@@ -229,7 +229,7 @@ parameterDecl: IDENTIFIER type_ | IDENTIFIER ;
 
 typedParameterDecl: IDENTIFIER type_ ;
 
-block: L_BRACE stmtList R_BRACE ;
+block: L_BRACE stmtList R_BRACE ; //???: null statement list
 
 stmtList: stmt | stmtList stmt ;
 
@@ -292,7 +292,7 @@ forIndex: IDENTIFIER ;
 
 forValue: IDENTIFIER ;
 
-rangeExpr: RANGE IDENTIFIER ;
+rangeExpr: RANGE expression ; //??? IDENTIFIER or expression
 
 breakStmt: BREAK ;
 
@@ -319,21 +319,21 @@ arrayTypeIndex: integerLit | IDENTIFIER ;
 
 elementType: type_ ;
 
-arrayValue
-    : L_BRACE elementList R_BRACE
-    | L_BRACE R_BRACE ;
+arrayValue: L_BRACE elementList R_BRACE;
 
 structLit: structType structValue ;
 
 structType: integerLit | IDENTIFIER ;
 
-structValue
-    : L_BRACE keyedElementList R_BRACE
-    | L_BRACE R_BRACE ; 
+structValue: L_BRACE keyedElementList R_BRACE; //???: nullable
 
-elementList: element COMMA elementList | element ;
+elementList: nonNullElementList | ;
 
-keyedElementList: keyedElement COMMA keyedElementList | keyedElement ;
+nonNullElementList: element COMMA nonNullElementList | element ;
+
+keyedElementList: nonNullKeyedElementList | ;
+
+nonNullKeyedElementList: keyedElement COMMA nonNullKeyedElementList | keyedElement ;
 
 keyedElement: key COLON element | element ;
 
