@@ -143,14 +143,14 @@ class LexerSuite(unittest.TestCase):
     ## Test STRING LITERALS
     def test_string_lit(self):
         """test string literal"""
-        self.assertTrue(TestLexer.checkLexeme(""" "abc" ""","""abc,<EOF>""",133))
+        self.assertTrue(TestLexer.checkLexeme(""" "abc" """,""""abc",<EOF>""",133))
     
     def test_string_lit_2(self):
         """test string literal"""
-        self.assertTrue(TestLexer.checkLexeme(""" "abc\\ndef" ""","""abc\\ndef,<EOF>""",134))
+        self.assertTrue(TestLexer.checkLexeme(""" "abc\\ndef" """,""""abc\\ndef",<EOF>""",134))
         
     def test_string_lit_3(self):
-        self.assertTrue(TestLexer.checkLexeme(""" "TaTrungTin \\r" ""","TaTrungTin \\r,<EOF>", 135))  
+        self.assertTrue(TestLexer.checkLexeme(""" "TaTrungTin \\r" ""","\"TaTrungTin \\r\",<EOF>", 135))  
         
     ## Test BOOLEAN LITERALS
     

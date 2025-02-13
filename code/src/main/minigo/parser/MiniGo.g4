@@ -37,6 +37,7 @@ NL: ('\r'?'\n') {
     ]
     if hasattr(self, 'preceding_token') and self.preceding_token and self.preceding_token.type in accepted_tokens_before_newline_char:
         self.text = ';';
+        self.type = self.SEMICOLON;
     else:
         self.skip();
 }; 
@@ -47,7 +48,7 @@ LINE_COMMENT: '//' ~[\r\n]* -> skip;
 
 MULTI_LINE_COMMENT: '/*' ( MULTI_LINE_COMMENT | .)*? '*/' -> skip;
 
-EOS: SEMICOLON | NL;
+eos: SEMICOLON | NL;
 
 // Keywords
 IF: 'if';
@@ -191,7 +192,7 @@ program  : declList EOF ;
 // Declaration
 declList: decl | declList decl ;
 
-decl: declBody EOS ;
+decl: declBody eos ;
 
 declBody: varDecl | constDecl | funcDecl | methodDefine | structDecl | interfaceDecl ;
 
@@ -243,7 +244,7 @@ structBody: L_BRACE fieldDeclList R_BRACE ;
 
 fieldDeclList: fieldDecl | fieldDeclList fieldDecl ;
 
-fieldDecl: IDENTIFIER type_ EOS ;
+fieldDecl: IDENTIFIER type_ eos ;
 
 interfaceDecl: TYPE IDENTIFIER INTERFACE interfaceBody;
 
@@ -251,10 +252,10 @@ interfaceBody: L_BRACE methodDeclList R_BRACE ;
 
 methodDeclList: methodDecl | methodDeclList methodDecl ;
 
-methodDecl: IDENTIFIER signature EOS;
+methodDecl: IDENTIFIER signature eos;
 
 // Statement
-stmt: stmtBody EOS ;
+stmt: stmtBody eos ;
 
 stmtBody
     : varDecl | constDecl | assignStmt | ifStmt | forStmt | breakStmt 
