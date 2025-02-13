@@ -47,7 +47,7 @@ LINE_COMMENT: '//' ~[\r\n]* -> skip;
 
 MULTI_LINE_COMMENT: '/*' ( MULTI_LINE_COMMENT | .)*? '*/' -> skip;
 
-EOS: SEMICOLON | EOF;
+EOS: SEMICOLON | NL;
 
 // Keywords
 IF: 'if';
@@ -160,15 +160,15 @@ IDENTIFIER: [A-Za-z_][A-Za-z0-9_]*;
 // INT Literals
 DECIMAL_INT: [1-9]DIGIT* | '0'; 
 fragment DIGIT: [0-9];
-BINARY_INT: '0'[Bb][01]+ ; //???: Convert to decimal
+BINARY_INT: '0'[Bb][01]+ ; 
 OCTAL_INT: '0'[Oo][0-7]+ ;
 HEX_INT: '0'[Xx][0-9A-Fa-f]+ ;
 
-FLOAT_LIT: DIGIT+ '.' DIGIT* EXPONENT?; //???: leading zero
+FLOAT_LIT: DIGIT+ '.' DIGIT* EXPONENT?; 
 
 fragment EXPONENT: [eE][+-]? DIGIT+;
 
-STRING_LIT: '"' STRING_CHAR* '"' { self.text = self.text[1:-1]; }; //???: remove quotes
+STRING_LIT: '"' STRING_CHAR* '"' ; 
 
 fragment STRING_CHAR: (~[\n"\\] | '\\' [ntr"\\]);
 
@@ -229,9 +229,9 @@ parameterDecl: IDENTIFIER type_ | IDENTIFIER ;
 
 typedParameterDecl: IDENTIFIER type_ ;
 
-block: L_BRACE stmtList R_BRACE ; //???: null statement list
+block: L_BRACE stmtList R_BRACE ; 
 
-stmtList: stmt | stmtList stmt ;
+stmtList: stmt | stmtList stmt ; //???: Not nullable
 
 methodDefine: FUNC receiver IDENTIFIER signature block ;
 
@@ -313,33 +313,33 @@ compositeLit: arrayLit | structLit ;
 
 arrayLit: arrayType arrayValue ;
 
-arrayType: L_BRACKET arrayTypeIndex R_BRACKET elementType ; //???: or constant
+arrayType: L_BRACKET arrayTypeIndex R_BRACKET arrayElementType ; 
 
 arrayTypeIndex: integerLit | IDENTIFIER ;
 
-elementType: type_ ;
+arrayElementType: type_ ;
 
-arrayValue: L_BRACE elementList R_BRACE;
+arrayValue: L_BRACE arrayElementList R_BRACE;
+
+arrayElementList: arrayElement | arrayElement COMMA arrayElementList ; //???: nonNull (forum)
+
+arrayElement: IDENTIFIER | basicLit | structLit | arrayValue ; //??? not include full arrayLit
 
 structLit: structType structValue ;
 
 structType: integerLit | IDENTIFIER ;
 
-structValue: L_BRACE keyedElementList R_BRACE; //???: nullable
+structValue: L_BRACE keyedElementList R_BRACE; 
 
-elementList: nonNullElementList | ;
-
-nonNullElementList: element COMMA nonNullElementList | element ;
-
-keyedElementList: nonNullKeyedElementList | ;
+keyedElementList: nonNullKeyedElementList | ; //???: nullable (spec)
 
 nonNullKeyedElementList: keyedElement COMMA nonNullKeyedElementList | keyedElement ;
 
-keyedElement: key COLON element | element ;
+keyedElement: key COLON element ; //??? key is mandatory
 
-key: expression | structValue ;
+key: expression | arrayValue ; //??? expression or arrayValue
 
-element: expression | structValue ;
+element: expression | arrayValue ;
 
 expression: expression OR logAndExpr |  logAndExpr ;
 

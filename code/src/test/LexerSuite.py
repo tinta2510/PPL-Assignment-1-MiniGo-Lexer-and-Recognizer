@@ -105,25 +105,25 @@ class LexerSuite(unittest.TestCase):
         self.assertTrue(TestLexer.checkLexeme("12","12,<EOF>", 122))
         
     def test_int_lit_2(self):
-        self.assertTrue(TestLexer.checkLexeme("0x11","17,<EOF>", 123))
+        self.assertTrue(TestLexer.checkLexeme("0x11","0x11,<EOF>", 123))
     
     def test_int_lit_3(self):
         self.assertTrue(TestLexer.checkLexeme("0452.", "0452.,<EOF>", 124))
         
     def test_int_lit_4(self):
-        self.assertTrue(TestLexer.checkLexeme("0X1234", "4660,<EOF>", 125))
+        self.assertTrue(TestLexer.checkLexeme("0X1234", "0X1234,<EOF>", 125))
     
     def test_int_lit_5(self):
-        self.assertTrue(TestLexer.checkLexeme("0b1010", "10,<EOF>", 126))
+        self.assertTrue(TestLexer.checkLexeme("0b1010", "0b1010,<EOF>", 126))
     
     def test_int_lit_6(self):
-        self.assertTrue(TestLexer.checkLexeme("0o1234", "668,<EOF>", 127))
+        self.assertTrue(TestLexer.checkLexeme("0o1234", "0o1234,<EOF>", 127))
     
     def test_int_lit_7(self):
-        self.assertTrue(TestLexer.checkLexeme("0O1234", "668,<EOF>", 128))
+        self.assertTrue(TestLexer.checkLexeme("0O1234", "0O1234,<EOF>", 128))
     
     def test_int_lit_8(self):  
-        self.assertTrue(TestLexer.checkLexeme("0B1001", "9,<EOF>", 129))
+        self.assertTrue(TestLexer.checkLexeme("0B1001", "0B1001,<EOF>", 129))
         
     def test_int_lit_9(self):
         """INT_LIT"""
@@ -168,7 +168,7 @@ class LexerSuite(unittest.TestCase):
         self.assertTrue(TestLexer.checkLexeme("^","ErrorToken ^", 138))
         
     def test_error_token_4(self):
-        self.assertTrue(TestLexer.checkLexeme("0b1234", "1,234,<EOF>", 139))
+        self.assertTrue(TestLexer.checkLexeme("0b1234", "0b1,234,<EOF>", 139))
         
     ## Test UNCLOSED STRING
     def test_unclosed_string(self):
