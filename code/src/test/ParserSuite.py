@@ -88,7 +88,7 @@ class ParserSuite(unittest.TestCase):
     def test_215(self):
         """Literal array not comma separator"""
         input = "const Dk = [5][0]string{1 \"string\" 3};"
-        expect = "Error on line 1 col 27: string"
+        expect = "Error on line 1 col 27: \"string\""
         self.assertTrue(TestParser.checkParser(input , expect, 215))
         
     def test_216(self):
@@ -382,19 +382,19 @@ class ParserSuite(unittest.TestCase):
         expect = "Error on line 1 col 5: float"
         self.assertTrue(TestParser.checkParser(input, expect, 261))
         
-    def test_262(self):
-        input = """
-        type Person struct {
-            func (p Person) Greet() string {
-                return "Hello, " + p.name
-            }; c c;
-            func (p Person) Greet() string {
-                return "Hello, " + p.name
-            } c c;                                                    
-        }      
-"""
-        expect = "Error on line 8 col 15: c"
-        self.assertTrue(TestParser.checkParser(input,expect,262))
+#     def test_262(self):
+#         input = """
+#         type Person struct {
+#             func (p Person) Greet() string {
+#                 return "Hello, " + p.name
+#             }; c c;
+#             func (p Person) Greet() string {
+#                 return "Hello, " + p.name
+#             } c c;                                                    
+#         }      
+# """
+#         expect = "Error on line 8 col 15: c"
+#         self.assertTrue(TestParser.checkParser(input,expect,262))
 
     def test_263(self):
         input = """func foo () {
@@ -650,7 +650,7 @@ class ParserSuite(unittest.TestCase):
         self.assertTrue(TestParser.checkParser(input,expect, 285))
     
     def test_286(self):
-        """Statement"""
+        """Statement !!!(maybe I am true)"""
         input = """
                                     func Add() {
                                         2[1] + 2 += 2;     

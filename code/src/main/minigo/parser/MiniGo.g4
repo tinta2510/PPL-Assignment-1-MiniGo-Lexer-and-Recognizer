@@ -236,7 +236,9 @@ stmtList: stmt | stmtList stmt ; //???: Not nullable
 
 methodDefine: FUNC receiver IDENTIFIER signature block ;
 
-receiver: L_PAREN IDENTIFIER type_ R_PAREN ;
+receiver: L_PAREN IDENTIFIER receiverType R_PAREN ;
+
+receiverType: IDENTIFIER ; //???: type_
 
 structDecl: TYPE IDENTIFIER STRUCT structBody ;
 
