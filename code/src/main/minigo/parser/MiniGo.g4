@@ -46,7 +46,7 @@ WS : [ \t\r\f]+ -> skip ; // skip spaces, tabs
 
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
 
-MULTI_LINE_COMMENT: '/*' ( MULTI_LINE_COMMENT | .)*? '*/' -> skip;
+MULTI_LINE_COMMENT: '/*' ( MULTI_LINE_COMMENT | .)*? '*/' -> skip; //???: Unclosed comment
 
 eos: SEMICOLON | NL;
 
@@ -238,7 +238,7 @@ methodDefine: FUNC receiver IDENTIFIER signature block ;
 
 receiver: L_PAREN IDENTIFIER receiverType R_PAREN ;
 
-receiverType: IDENTIFIER ; //???: type_
+receiverType: IDENTIFIER ;
 
 structDecl: TYPE IDENTIFIER STRUCT structBody ;
 
@@ -265,7 +265,7 @@ stmtBody
 
 assignStmt: lhs assignOp rhs ;
 
-lhs: IDENTIFIER | lhs fieldAccess | lhs arrayAccess ; //???
+lhs: IDENTIFIER | lhs fieldAccess | lhs arrayAccess ; 
 
 assignOp: COLON_ASSIGN | PLUS_ASSIGN | MINUS_ASSIGN | STAR_ASSIGN | SLASH_ASSIGN | MOD_ASSIGN ;
 
@@ -295,13 +295,13 @@ forIndex: IDENTIFIER ;
 
 forValue: IDENTIFIER ;
 
-rangeExpr: RANGE expression ; //??? IDENTIFIER or expression
+rangeExpr: RANGE expression ; 
 
 breakStmt: BREAK ;
 
 continueStmt: CONTINUE ;
 
-callStmt: primaryExpr arguments ; //???
+callStmt: primaryExpr arguments ;
 
 returnStmt: RETURN expression | RETURN ;
 
@@ -330,15 +330,15 @@ arrayElement: IDENTIFIER | basicLit | structLit | arrayValue ; //??? not include
 
 structLit: structType structValue ;
 
-structType: integerLit | IDENTIFIER ;
+structType: IDENTIFIER ;
 
 structValue: L_BRACE keyedElementList R_BRACE; 
 
-keyedElementList: nonNullKeyedElementList | ; //???: nullable (spec)
+keyedElementList: nonNullKeyedElementList | ; //???: nullable 
 
 nonNullKeyedElementList: keyedElement COMMA nonNullKeyedElementList | keyedElement ;
 
-keyedElement: key COLON element ; //??? key is mandatory
+keyedElement: key COLON element ;
 
 key: expression | arrayValue ; //??? expression or arrayValue
 
@@ -355,7 +355,7 @@ addExpr: addExpr addOp = (PLUS | MINUS) mulExpr | mulExpr ;
 
 mulExpr: mulExpr mulOp = (STAR | SLASH | MOD) unaryExpr | unaryExpr ;
 
-unaryExpr: unaryOp = (PLUS | MINUS | NOT) primaryExpr | primaryExpr ;
+unaryExpr: unaryOp = (PLUS | MINUS | NOT) unaryExpr | primaryExpr ;
 
 primaryExpr
     : operand
