@@ -285,9 +285,7 @@ forCondition: expression ;
 
 forLoop: forLoopInit SEMICOLON forCondition SEMICOLON forLoopUpdate ;
 
-forLoopInit: assignStmtInForLoopInit | varDeclWithInit ;
-
-assignStmtInForLoopInit: IDENTIFIER assignOp rhs ;
+forLoopInit: forLoopUpdate | varDeclWithInit ;
 
 forLoopUpdate: IDENTIFIER assignOp expression ;
 
