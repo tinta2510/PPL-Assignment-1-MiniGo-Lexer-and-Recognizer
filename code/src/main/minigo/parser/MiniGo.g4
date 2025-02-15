@@ -46,7 +46,7 @@ WS : [ \t\r\f]+ -> skip ; // skip spaces, tabs
 
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
 
-MULTI_LINE_COMMENT: '/*' ( MULTI_LINE_COMMENT | .)*? '*/' -> skip; //???: Unclosed comment
+MULTI_LINE_COMMENT: '/*' ( MULTI_LINE_COMMENT | .)*? '*/' -> skip; 
 
 eos: SEMICOLON | NL;
 
@@ -285,7 +285,9 @@ forCondition: expression ;
 
 forLoop: forLoopInit SEMICOLON forCondition SEMICOLON forLoopUpdate ;
 
-forLoopInit: assignStmt | varDeclWithInit ;
+forLoopInit: assignStmtInForLoopInit | varDeclWithInit ;
+
+assignStmtInForLoopInit: IDENTIFIER assignOp rhs ;
 
 forLoopUpdate: IDENTIFIER assignOp expression ;
 
@@ -326,7 +328,7 @@ arrayValue: L_BRACE arrayElementList R_BRACE;
 
 arrayElementList: arrayElement | arrayElement COMMA arrayElementList ; //???: nonNull (forum)
 
-arrayElement: IDENTIFIER | basicLit | structLit | arrayValue ; //??? not include full arrayLit
+arrayElement: IDENTIFIER | basicLit | structLit | arrayValue ; 
 
 structLit: structType structValue ;
 
