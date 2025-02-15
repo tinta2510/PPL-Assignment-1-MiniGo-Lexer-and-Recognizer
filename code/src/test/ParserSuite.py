@@ -128,7 +128,7 @@ class ParserSuite(unittest.TestCase):
         self.assertTrue(TestParser.checkParser(input, expect, 221))
     
     def test_222(self):
-        """Literal struct not colon between field name and expression"""
+        """Literal struct not colon between field name and expression (!!!May be i am true)"""
         input = "const Dk = DUYKHANG{name \"khang\"};"
         expect = "Error on line 1 col 26: khang"
         self.assertTrue(TestParser.checkParser(input, expect, 222))
@@ -146,7 +146,7 @@ class ParserSuite(unittest.TestCase):
         self.assertTrue(TestParser.checkParser(input, expect, 224))
     
     def test_225(self):
-        """Literal struct not in curly braces"""
+        """Literal struct not in curly braces (!!!May be i am true)"""
         input = "const Dk = DUYKHANG(name: , age: 21);"
         expect = "Error on line 1 col 25: :"
         self.assertTrue(TestParser.checkParser(input, expect, 225))
@@ -158,7 +158,7 @@ class ParserSuite(unittest.TestCase):
         self.assertTrue(TestParser.checkParser(input, expect, 226))
         
     def test_227(self):
-        """Literal struct not field name"""
+        """Literal struct not field name (!!!May be i am true)"""
         input = "const Dk = DUYKHANG{\"khang\"};"
         expect = "Error on line 1 col 21: khang"
         self.assertTrue(TestParser.checkParser(input, expect, 227))
@@ -254,7 +254,7 @@ class ParserSuite(unittest.TestCase):
         self.assertTrue(TestParser.checkParser(input,expect, 241))
         
     def test_242(self):
-        """Expressions function call with not comma-separator argument"""
+        """Expressions function call with not comma-separator argument (!!!May be i am true)"""
         input = " var z DK = add(3 a);" 
         expect = "Error on line 1 col 19: a"
         self.assertTrue(TestParser.checkParser(input,expect, 242))
@@ -323,7 +323,7 @@ class ParserSuite(unittest.TestCase):
     
     
     def test_253(self):
-        """Expressions"""
+        """Expressions (!!!May be i am true)"""
         input = "var z khang = a.a.a[2].c[2].foo(1,);"
         expect = "Error on line 1 col 35: )"
         self.assertTrue(TestParser.checkParser(input, expect, 253))

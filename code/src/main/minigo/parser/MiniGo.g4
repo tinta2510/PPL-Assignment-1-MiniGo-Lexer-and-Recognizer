@@ -334,15 +334,15 @@ structType: IDENTIFIER ;
 
 structValue: L_BRACE keyedElementList R_BRACE; 
 
-keyedElementList: nonNullKeyedElementList | ; //???: nullable 
+keyedElementList: nonNullKeyedElementList | ; 
 
 nonNullKeyedElementList: keyedElement COMMA nonNullKeyedElementList | keyedElement ;
 
 keyedElement: key COLON element ;
 
-key: expression | arrayValue ; //??? expression or arrayValue
+key: IDENTIFIER ; 
 
-element: expression | arrayValue ;
+element: expression ; 
 
 expression: expression OR logAndExpr |  logAndExpr ;
 
@@ -359,9 +359,9 @@ unaryExpr: unaryOp = (PLUS | MINUS | NOT) unaryExpr | primaryExpr ;
 
 primaryExpr
     : operand
-    | primaryExpr fieldAccess   // field access
-    | primaryExpr arrayAccess         // array access
-    | primaryExpr arguments     // function/method call
+    | primaryExpr fieldAccess 
+    | primaryExpr arrayAccess   
+    | primaryExpr arguments     
     ; 
 
 fieldAccess: DOT IDENTIFIER ;
