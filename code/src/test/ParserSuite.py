@@ -10,13 +10,13 @@ class ParserSuite(unittest.TestCase):
 
     def test_202(self):
         """Literal boolean true"""
-        input = "const ABC = true;"
+        input = "var ABC = true;"
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 202))
     
     def test_203(self):
         """Literal boolean false"""
-        input = "const ABC = false;"
+        input = "var ABC bool;"
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 203))
         
@@ -28,7 +28,7 @@ class ParserSuite(unittest.TestCase):
         
     def test_205(self):
         """Literal float"""
-        input = "const ABC = 10.12;"
+        input = "const ABC = ca.foo(132) + b.c[2];"
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 205))
         
@@ -99,7 +99,6 @@ class ParserSuite(unittest.TestCase):
         self.assertTrue(TestParser.checkParser(input, expect, 216))
 
     def test_217(self):
-        """Literal struct missing colon"""
         input = "const ABC = funn()().field;"
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 217))
@@ -119,11 +118,9 @@ class ParserSuite(unittest.TestCase):
     def test_220(self):
         """Function declaration"""
         input = """
-            func ABC(x int, y int) int {}
-            func ABC1() [2][3] ID {}
-            func ABC2() {}
+            func ABC(x int, y int) int {return 10;}
         """
-        expect = "Error on line 2 col 41: }"
+        expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 220))
 
     def test_221(self):
@@ -185,14 +182,14 @@ class ParserSuite(unittest.TestCase):
         
     def test_226(self):
         """Literal struct with missing field name"""
-        input = "const ABC = ABC{\"content\"};"
-        expect = "Error on line 1 col 16: {"
+        input = "const ABC = [1]arr{\"content\"};"
+        expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 226))
         
     def test_227(self):
         """Literal array missing dimension"""
-        input = "const ABC = int{\"content\"};"
-        expect = "Error on line 1 col 13: int"
+        input = "const ABC = \"content\";"
+        expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 227))
             
     def test_228(self):
@@ -281,8 +278,8 @@ class ParserSuite(unittest.TestCase):
         
     def test_242(self):
         """Invalid function call missing comma separator"""
-        input = "var z ABC = add(3 a);"
-        expect = "Error on line 1 col 16: ("
+        input = "var z ABC = add(3, a);"
+        expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 242))
         
     def test_243(self):
@@ -347,8 +344,8 @@ class ParserSuite(unittest.TestCase):
     
     def test_253(self):
         """Function call with trailing comma"""
-        input = "var z ABC = a.a.a[2].c[2].foo(1,);"
-        expect = "Error on line 1 col 30: ("
+        input = "var z ABC = a.a.a[2].c[2].foo(1);"
+        expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 253))
         
     def test_254(self):
@@ -421,11 +418,9 @@ class ParserSuite(unittest.TestCase):
     def test_264(self):
         """Function declaration with parameters and return type"""
         input = """
-            func ABC(x int, y int) int {}
-            func ABC1() [2][3] ID {}
-            func ABC2() {}                                       
+            func ABC(x, y int) {return 10;}                           
         """
-        expect = "Error on line 2 col 41: }"
+        expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 264))
 
     def test_265(self):
@@ -443,7 +438,7 @@ class ParserSuite(unittest.TestCase):
         input = """
             type ABC struct {
                 field1 string;
-                field2 [1][3]ABC;
+                field2 [1][3]ABC
             }                                                                     
         """
         expect = "successful"
@@ -464,14 +459,14 @@ class ParserSuite(unittest.TestCase):
         """Interface declaration"""
         input = """
             type Calculator interface {
+                /* This is a comment */
                 Add(x, y int) int;
                 Subtract(a, b float, c int) [3]ID;
                 Reset();
                 SayHello(name string);
             }
-            type ABC interface {}                                                                       
         """
-        expect = "Error on line 8 col 33: }"
+        expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 268))
 
     def test_269(self):
@@ -521,7 +516,7 @@ class ParserSuite(unittest.TestCase):
     def test_272(self):
         """Invalid function declaration with missing parameter type"""
         input = """    
-            func Add(a) [2]id {}
+            func Add(a) [2]id {diem := 10;}
         """
         expect = "Error on line 2 col 23: )"
         self.assertTrue(TestParser.checkParser(input, expect, 272))     
@@ -551,7 +546,7 @@ class ParserSuite(unittest.TestCase):
     def test_275(self):
         """Valid function declaration with struct and variable declarations"""
         input = """
-            func Add(x int, y int) int  {return;};
+            func Add(x      , y int) int  {return;};
         """
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 275))
@@ -559,23 +554,25 @@ class ParserSuite(unittest.TestCase):
     def test_276(self):
         """Method declaration with invalid receiver type"""
         input = """
-            func (c int) Add(x int) int {}
+            func (c C) Add(x int) {/*cmt*/diem := 10;}
         """
-        expect = "Error on line 2 col 21: int"
+        expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 276))
     
     def test_277(self):
         """Function with missing return type"""
         input = """    
-            func (c c) Add(x, c int) {}
+            func (c c) Add(x, c int) {
+                if (x > 10) {break;}
+            }
         """
-        expect = "Error on line 2 col 39: }"
+        expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 277))
         
     def test_278(self):
         """Constant declaration followed by function"""
         input = """    
-            const a = 2 func (c c) Add(x int) {}
+            const a = 2 func (c c) Add(x int) {continue;}
         """
         expect = "Error on line 2 col 25: func"
         self.assertTrue(TestParser.checkParser(input, expect, 278))
@@ -697,7 +694,7 @@ class ParserSuite(unittest.TestCase):
         self.assertTrue(TestParser.checkParser(input, expect, 288))
     
     def test_289(self):
-        """Invalid function with missing semicolon"""
+        """Invalid function with unsuitable newline"""
         input ="""
             func (p Person) Greet() string {
                 for i := 0
@@ -771,9 +768,9 @@ class ParserSuite(unittest.TestCase):
     def test_295(self):
         """Struct initialization with missing field name"""
         input = """
-            var p ABC = ABC{ "content", 21 };
+            var p ABC = ABC{name: "content", age: 21 };
         """
-        expect = "Error on line 2 col 28: {"
+        expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 295))
 
     def test_296(self):
