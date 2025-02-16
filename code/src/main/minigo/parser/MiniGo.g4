@@ -222,17 +222,19 @@ parameterList: L_PAREN parameterDeclList R_PAREN ;
 
 returnType: type_;
 
-parameterDeclList: nonNullParameterDeclList | ;
+parameterDeclList: nonNullParameterDeclList | ; // nullable
 
 nonNullParameterDeclList: parameterDecl COMMA nonNullParameterDeclList | typedParameterDecl ;
 
-parameterDecl: IDENTIFIER type_ | IDENTIFIER ;
+parameterDecl: typedParameterDecl | IDENTIFIER ;
 
 typedParameterDecl: IDENTIFIER type_ ;
 
 block: L_BRACE stmtList R_BRACE ; 
 
-stmtList: stmt | stmtList stmt ; //???: Not nullable
+stmtList: nonNullStmtList | ; //nullable
+
+nonNullStmtList: stmt | nonNullStmtList stmt ;
 
 methodDefine: FUNC receiver IDENTIFIER signature block ;
 
@@ -244,7 +246,9 @@ structDecl: TYPE IDENTIFIER STRUCT structBody ;
 
 structBody: L_BRACE fieldDeclList R_BRACE ;
 
-fieldDeclList: fieldDecl | fieldDeclList fieldDecl ;
+fieldDeclList: nonNullFieldDeclList | ;
+
+nonNullFieldDeclList: fieldDecl | nonNullFieldDeclList fieldDecl ;
 
 fieldDecl: IDENTIFIER type_ eos ;
 
@@ -252,7 +256,9 @@ interfaceDecl: TYPE IDENTIFIER INTERFACE interfaceBody;
 
 interfaceBody: L_BRACE methodDeclList R_BRACE ;
 
-methodDeclList: methodDecl | methodDeclList methodDecl ;
+methodDeclList: nonNullMethodDeclList | ;
+
+nonNullMethodDeclList: methodDecl | nonNullMethodDeclList methodDecl ;
 
 methodDecl: IDENTIFIER signature eos;
 
@@ -322,9 +328,11 @@ arrayTypeIndex: integerLit | IDENTIFIER ;
 
 arrayElementType: type_ ;
 
-arrayValue: L_BRACE arrayElementList R_BRACE;
+arrayValue: L_BRACE arrayList R_BRACE;
 
-arrayElementList: arrayElement | arrayElement COMMA arrayElementList ; //???: nonNull (forum)
+arrayList: nonNullArrayList | ; //???: nullable
+
+nonNullArrayList: arrayElement COMMA nonNullArrayList | arrayElement ;
 
 arrayElement: IDENTIFIER | basicLit | structLit | arrayValue ; 
 
