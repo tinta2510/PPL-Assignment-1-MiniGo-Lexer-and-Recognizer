@@ -464,7 +464,6 @@ class ParserSuite(unittest.TestCase):
                 SayHello(name string);
                                         
             }
-            type khang interface {}                                                                       
         """
         expect = "Error on line 11 col 35: }"
         self.assertTrue(TestParser.checkParser(input, expect, 269))
@@ -596,7 +595,7 @@ class ParserSuite(unittest.TestCase):
         input = """    
             func (c c) Add(x, c int) {}
         """
-        expect = "Error on line 2 col 39: }"
+        expect = "successful"
         self.assertTrue(TestParser.checkParser( input, expect, 280))
         
     def test_281(self):

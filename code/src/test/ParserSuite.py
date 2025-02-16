@@ -163,15 +163,11 @@ class ParserSuite(unittest.TestCase):
         self.assertTrue(TestParser.checkParser(input ,expect, 223))
 
     def test_224(self):
-        """Return statement"""
-        input = """    
-            func ABC() {                           
-                return 1;
-                return;
-                foo(2 + x, 4 / y); m.goo();                        
-             }
-        """
-        expect = "successful"
+        """invalid function decl"""
+        input = """func main() {
+                    func foo() {};
+                };"""
+        expect = "Error on line 2 col 21: func"
         self.assertTrue(TestParser.checkParser(input, expect, 224))
 
     def test_225(self):
@@ -187,15 +183,22 @@ class ParserSuite(unittest.TestCase):
         self.assertTrue(TestParser.checkParser(input, expect, 226))
         
     def test_227(self):
-        """Literal array missing dimension"""
-        input = "const ABC = \"content\";"
-        expect = "successful"
-        self.assertTrue(TestParser.checkParser(input, expect, 227))
+        self.assertTrue(TestParser.checkParser("""
+        type Name interface {
+            func (p Person) Greet() string {
+                return "Tin, " + p.name
+            }                                        
+        }      
+        ""","Error on line 3 col 13: func", 227))
             
     def test_228(self):
-        """Arithmetic expressions"""
-        input = "const ABC = 2 + 2 - 2 * 2 / 2 % 2;"
-        expect = "successful"
+        """For range statement with non-scalar index"""
+        input = """func loop() {
+            for arr[1], value := range arr {
+                arr := value;
+            }
+        };"""
+        expect = "Error on line 2 col 23: ,"
         self.assertTrue(TestParser.checkParser(input, expect, 228))
         
     def test_229(self):
@@ -223,10 +226,12 @@ class ParserSuite(unittest.TestCase):
         self.assertTrue(TestParser.checkParser(input, expect, 232))
         
     def test_233(self):
-        """Access multi-dimensional array"""
-        input = "const ABC = a[3][2];"
-        expect = "successful"
-        self.assertTrue(TestParser.checkParser(input, expect, 233))
+        input = """
+                func (a Function) DoSomething() {
+                    s.fun() += 2;
+                }"""
+        expect = "Error on line 3 col 29: +="
+        self.assertTrue(TestParser.checkParser(input,expect, 233))
         
     def test_234(self):
         """Access array with expression index"""
@@ -284,7 +289,7 @@ class ParserSuite(unittest.TestCase):
         
     def test_243(self):
         """Function call with arguments"""
-        input = "var z ABC = add(a, c, 2);"
+        input = "var z variable_name = doSt(a, c, 2);"
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 243))
         
@@ -403,10 +408,10 @@ class ParserSuite(unittest.TestCase):
         self.assertTrue(TestParser.checkParser(input, expect, 261))
 
     def test_262(self):
-        """Empty function declaration"""
         input = """func foo () {
+            continue;
         };"""
-        expect = "Error on line 2 col 9: }"
+        expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 262))
     
     def test_263(self):

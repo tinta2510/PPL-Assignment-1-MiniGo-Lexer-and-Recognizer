@@ -81,7 +81,7 @@ class ParserSuite(unittest.TestCase):
         """declared Interface"""
         self.assertTrue(TestParser.checkParser("""
             type VoTien struct {}                                                                       
-        ""","Error on line 2 col 33: }", inspect.stack()[0].function))
+        ""","successful", inspect.stack()[0].function))
 
     def test_016(self):
         """declared Interface"""
@@ -96,7 +96,7 @@ class ParserSuite(unittest.TestCase):
                                         
             }
             type VoTien interface {}                                                                       
-        ""","Error on line 11 col 36: }", inspect.stack()[0].function))
+        ""","successful", inspect.stack()[0].function))
 
     def test_017(self):
         """declared_statement"""
