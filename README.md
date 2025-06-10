@@ -47,4 +47,4 @@ Run `python run.py test ParserSuite` to test the parser.
   - `UnclosedString`: Raised for unterminated string literals.
   - `IllegalEscapeInString`: Raised for illegal escape sequences in string literals.
   
-*Note:* Find more details in the `docs/MiniGo Spec 1.0.2.pdf` and `docs/MiniGo Spec 1.0.2.md` files.
+*Note:* Find more details in the `docs/MiniGo Spec 1.0.2.pdf` and `docs\Assignment 1 Spec.pdf` files.
