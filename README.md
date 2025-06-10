@@ -6,6 +6,12 @@ The first assignment's objective is to implement a lexer and parser for MiniGo u
 
 The project is built using [ANTLR 4.9.2](https://www.antlr.org/), Python 3.12, and Java.
 
+## Other Components of MiniGo compiler
+Other components of the MiniGo project will be implemented in subsequent assignments, including:
+- **Assignment 2**: Implementing an abstract syntax tree generator for MiniGo. https://github.com/tinta2510/PPL-Assignment-2-MiniGo-AST-Generation
+- **Asssignment 3**: Implementing a static checker for MiniGo. https://github.com/tinta2510/PPL-Assignment-3-MiniGo-Static-Checker
+- **Assignment 4**: Implementing a code generator for MiniGo. https://github.com/tinta2510/PPL-Assignment-4-Code-Generator
+
 ## Environment Setup
 1. **Install Java (JDK)**  
    Ensure `java` is available in your terminal. If not, install it from:  
