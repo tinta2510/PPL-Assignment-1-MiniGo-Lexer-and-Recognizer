@@ -1,6 +1,4 @@
 # PPL-Assignment-1-MiniGo-Lexer-and-Recognizer
-This is a repo of PPL Assignment 1
-
 ## Overview
 This project is the first assignment for the Principles of Programming Languages (CO3005) course at HCMC University of Technology (VNU-HCM). The overall goal  of assignments in this course is to implement a simplified version of the Go programming language, named MiniGo.
 
